@@ -123,7 +123,7 @@ export const App: React.FC = () => {
             </p>
             <div className="hero-cta">
               <a 
-                href="https://api.whatsapp.com/send?phone=6281392789685&text=Halo promomyrepublicjogja.com, saya ingin berlangganan internet MyRepublic. Bisa minta informasi lebih detail?" 
+                href="https://api.whatsapp.com/send?phone=6285713111997&text=Halo promomyrepublicjogja.com, saya ingin berlangganan internet MyRepublic. Bisa minta informasi lebih detail?" 
                 target="_blank" 
                 rel="noreferrer" 
                 className="btn-primary"
@@ -199,7 +199,7 @@ export const App: React.FC = () => {
                 <li>Ideal untuk {pkg.devices}</li>
               </ul>
               <a 
-                href={`https://api.whatsapp.com/send?phone=6281392789685&text=Halo promomyrepublicjogja.com, saya ingin langganan ${activeTerm} - ${pkg.name}. Bisa minta informasi lebih detail?`}
+                href={`https://api.whatsapp.com/send?phone=6285713111997&text=Halo promomyrepublicjogja.com, saya ingin langganan ${activeTerm} - ${pkg.name}. Bisa minta informasi lebih detail?`}
                 target="_blank" 
                 rel="noreferrer" 
                 className="btn-primary full-width"
@@ -258,7 +258,7 @@ export const App: React.FC = () => {
         <h2>Kecepatan Ultra Cepat dan Koneksi Stabil</h2>
         <p>Untuk konsultasi, cek coverage jaringan, Detail paket berlanggan MyRepublic hubungi kami</p>
         <div className="hero-cta">
-          <a href="https://api.whatsapp.com/send?phone=6281392789685&text=Halo promomyrepublicjogja.com, bisa minta informasi lebih lanjut?" target="_blank" rel="noreferrer" className="btn-primary">
+          <a href="https://api.whatsapp.com/send?phone=6285713111997&text=Halo promomyrepublicjogja.com, bisa minta informasi lebih lanjut?" target="_blank" rel="noreferrer" className="btn-primary">
             Hubungi Kami
           </a>
         </div>
@@ -267,7 +267,7 @@ export const App: React.FC = () => {
       <footer className="footer">
         <p>Copyright © 2026 Promo MyRepublic Jogja. All rights reserved.</p>
         <p>
-          Kontak: <a href="tel:081392789685">081392789685</a> · Email:{" "}
+          Kontak: <a href="tel:085713111997">085713111997</a> · Email:{" "}
           <a href="mailto:promomyrepublicjogja@gmail.com">promomyrepublicjogja@gmail.com</a>
         </p>
       </footer>
