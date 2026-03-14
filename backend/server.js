@@ -79,6 +79,44 @@ app.delete("/api/packages/:id", async (req, res) => {
     }
 });
 
+// GET all banners
+app.get("/api/banners", async (req, res) => {
+    try {
+        const [banners] = await pool.query('SELECT * FROM banners ORDER BY id ASC');
+        res.json(banners);
+    } catch (error) {
+        console.error("Error fetching banners:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+// POST a new banner
+app.post("/api/banners", async (req, res) => {
+    const { image_url, title } = req.body;
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO banners (image_url, title) VALUES (?, ?)',
+            [image_url, title || ""]
+        );
+        res.status(201).json({ message: "Banner inserted", id: result.insertId });
+    } catch (error) {
+        console.error("Error inserting banner:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+// DELETE a banner
+app.delete("/api/banners/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM banners WHERE id = ?', [id]);
+        res.json({ message: "Banner deleted" });
+    } catch (error) {
+        console.error("Error deleting banner:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 app.listen(5000, () => {
     console.log("Server running on port 5000");
 });

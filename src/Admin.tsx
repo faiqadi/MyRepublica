@@ -12,6 +12,12 @@ interface PackageData {
   notes: string[];
 }
 
+interface BannerData {
+  id: number;
+  image_url: string;
+  title: string;
+}
+
 const inputStyle = {
   width: '100%', padding: '0.8rem', borderRadius: '0.5rem', 
   border: '1px solid #4b1b82', background: '#2d114c', color: 'white',
@@ -50,14 +56,31 @@ export const AdminHome: React.FC = () => {
         <h1 style={{ color: '#ffffff' }}>Dasbor Admin MyRepublica</h1>
         <a href="/" style={{ color: '#b47ce9', textDecoration: 'none' }}>&larr; Kembali ke Situs Utama</a>
       </header>
+      
+      <p style={{ color: '#d8b4fe', marginBottom: '1rem', fontWeight: 'bold' }}>Tampilan Website & Header:</p>
+      <Link 
+        to="/admin/banners" 
+        style={{ 
+          background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', 
+          padding: '1.5rem 2rem', borderRadius: '1rem', 
+          border: '1px solid #b47ce9', color: 'white', textDecoration: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '3rem',
+          transition: 'transform 0.2s', boxShadow: '0 10px 25px rgba(139, 61, 200, 0.4)'
+        }}
+        onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'}
+        onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+      >
+        <span>🖼️ Kelola Banner Slider Utama</span>
+        <span>&rarr;</span>
+      </Link>
 
-      <p style={{ color: '#d8b4fe', marginBottom: '2rem' }}>Pilih kategori paket yang ingin Anda kelola:</p>
-
+      <p style={{ color: '#d8b4fe', marginBottom: '2rem', fontWeight: 'bold' }}>Pengelolaan Daftar Paket per Kategori:</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
         {types.map(type => (
           <Link 
             key={type} 
-            to={`/admin/${encodeURIComponent(type)}`} 
+            to={`/admin/packages/${encodeURIComponent(type)}`} 
             style={{ 
               background: '#1c0a2f', padding: '2rem', borderRadius: '1rem', 
               border: '1px solid #4b1b82', color: 'white', textDecoration: 'none',
@@ -70,6 +93,137 @@ export const AdminHome: React.FC = () => {
             Kelola Paket {type}
           </Link>
         ))}
+      </div>
+    </div>
+  );
+};
+
+// ----------------------------------------------------
+// ADMIN BANNER COMPONENT
+// ----------------------------------------------------
+export const AdminBanner: React.FC = () => {
+  const [banners, setBanners] = useState<BannerData[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Form State
+  const [imageUrl, setImageUrl] = useState("");
+  const [title, setTitle] = useState("");
+
+  const fetchBanners = () => {
+    setLoading(true);
+    fetch("http://localhost:5000/api/banners")
+      .then((res) => res.json())
+      .then((data: BannerData[]) => {
+        setBanners(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Gagal memuat banner", err);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchBanners();
+  }, []);
+
+  const resetForm = () => {
+    setImageUrl("");
+    setTitle("");
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus banner ini?")) return;
+    
+    try {
+      await fetch(`http://localhost:5000/api/banners/${id}`, {
+        method: "DELETE",
+      });
+      fetchBanners();
+    } catch (error) {
+      console.error("Gagal menghapus banner", error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch("http://localhost:5000/api/banners", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_url: imageUrl, title })
+      });
+      resetForm();
+      fetchBanners();
+    } catch (error) {
+      console.error("Gagal menyimpan banner", error);
+    }
+  };
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'system-ui' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ color: '#ffffff', margin: 0 }}>Kelola <span style={{color: '#a855f7'}}>Banner Utama</span></h1>
+          <Link to="/admin" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.9rem' }}>&larr; Kembali ke Beranda Admin</Link>
+        </div>
+        <a href="/" style={{ color: '#b47ce9', textDecoration: 'none' }}>Ke Situs Utama &rarr;</a>
+      </header>
+
+      <div className="admin-container-grid" style={{ gap: '2rem' }}>
+        
+        {/* Form Container */}
+        <div style={{ background: '#1c0a2f', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #4b1b82', alignSelf: 'start' }}>
+          <h2 style={{ marginTop: 0, color: '#d8b4fe' }}>Tambah Banner Baru</h2>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.9rem', color: '#94a3b8' }}>URL/Path Gambar (e.g. /promo.jpg)</label>
+              <input required value={imageUrl} onChange={e => setImageUrl(e.target.value)} style={inputStyle} placeholder="/hero_banner_1.png" />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.9rem', color: '#94a3b8' }}>Judul Internal (Opsional)</label>
+              <input value={title} onChange={e => setTitle(e.target.value)} style={inputStyle} placeholder="Banner Promosi TV" />
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+              <button type="submit" style={primaryButtonStyle}>Tambah Banner</button>
+            </div>
+          </form>
+        </div>
+
+        {/* Table Container */}
+        <div style={{ background: '#1c0a2f', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #4b1b82', overflowX: 'auto' }}>
+          <h2 style={{ marginTop: 0, color: '#d8b4fe' }}>Daftar Banner Aktif</h2>
+          {loading ? (
+            <p>Memuat banner...</p>
+          ) : banners.length === 0 ? (
+            <p>Tidak ada banner. Slider tidak akan muncul.</p>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #4b1b82', color: '#a855f7' }}>
+                  <th style={{ padding: '0.8rem 0.5rem' }}>Pratinjau</th>
+                  <th style={{ padding: '0.8rem 0.5rem' }}>Judul</th>
+                  <th style={{ padding: '0.8rem 0.5rem' }}>Path / URL</th>
+                  <th style={{ padding: '0.8rem 0.5rem' }}>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {banners.map((banner) => (
+                  <tr key={banner.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <td style={{ padding: '0.8rem 0.5rem' }}>
+                      <img src={banner.image_url} alt={banner.title} style={{ width: '100px', height: '56px', objectFit: 'cover', borderRadius: '0.25rem', border: '1px solid #4b1b82' }} />
+                    </td>
+                    <td style={{ padding: '0.8rem 0.5rem', fontWeight: 'bold' }}>{banner.title || "-"}</td>
+                    <td style={{ padding: '0.8rem 0.5rem', color: '#d8b4fe', fontSize: '0.9rem' }}>{banner.image_url}</td>
+                    <td style={{ padding: '0.8rem 0.5rem', display: 'flex', gap: '0.5rem', alignItems: 'center', height: '100%' }}>
+                      <button onClick={() => handleDelete(banner.id)} style={deleteButtonStyle}>Hapus</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );

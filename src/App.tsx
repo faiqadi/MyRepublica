@@ -15,12 +15,22 @@ interface PackageData {
 
 const TERMS: Term[] = ["Bulanan", "6 Bulanan", "Tahunan", "Spesial"];
 
+interface BannerData {
+  id: number;
+  image_url: string;
+  title: string;
+}
+
 export const App: React.FC = () => {
   const [activeTerm, setActiveTerm] = useState<Term>("Bulanan");
   const [packages, setPackages] = useState<PackageData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   
-  // Hero Slider State
+  // Database Banners State
+  const [dbBanners, setDbBanners] = useState<BannerData[]>([]);
+  const [currentBannerSlide, setCurrentBannerSlide] = useState(0);
+
+  // Hero Slider State (Original feature)
   const [currentSlide, setCurrentSlide] = useState(0);
   const heroImages = [
     "/hero_banner_1_smarthome_1773482468456.png", 
@@ -29,6 +39,7 @@ export const App: React.FC = () => {
   ];
 
   useEffect(() => {
+    // Fetch Packages
     fetch("http://localhost:5000/api/packages")
       .then((res) => res.json())
       .then((data) => {
@@ -39,15 +50,28 @@ export const App: React.FC = () => {
         console.error("Gagal memuat paket", err);
         setLoading(false);
       });
-  }, []);
 
-  // Auto-slide effect
+    // Fetch Database Banners
+    fetch("http://localhost:5000/api/banners")
+      .then((res) => res.json())
+      .then((data) => {
+        setDbBanners(data);
+      })
+      .catch((err) => {
+        console.error("Gagal memuat banner dari database", err);
+      });
+  }, []);
+  // Auto-slide effect for DB Banners
   useEffect(() => {
+    if (dbBanners.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+      setCurrentBannerSlide((prev) => (prev + 1) % dbBanners.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [heroImages.length]);
+  }, [dbBanners.length]);
+
+  const nextBanner = () => setCurrentBannerSlide(prev => (prev + 1) % dbBanners.length);
+  const prevBanner = () => setCurrentBannerSlide(prev => (prev - 1 + dbBanners.length) % dbBanners.length);
 
   // Filter packages based on the active tab
   const displayedPackages = packages.filter(pkg => pkg.type === activeTerm);
@@ -55,15 +79,32 @@ export const App: React.FC = () => {
   return (
     <div className="page">
       <header className="hero slider-container">
-        {heroImages.map((img, index) => (
+        {dbBanners.map((banner, index) => (
           <div 
-            key={img}
-            className={`slider-bg ${index === currentSlide ? 'active' : ''}`} 
-            style={{ backgroundImage: `url("${img}")` }} 
+            key={banner.id}
+            className={`slider-bg ${index === currentBannerSlide ? 'active' : ''}`} 
+            style={{ backgroundImage: `url("${banner.image_url}")` }} 
           />
         ))}
         <div className="slider-overlay" />
         
+        {dbBanners.length > 1 && (
+          <div className="slider-controls-overlay">
+            <button className="slider-nav prev" onClick={prevBanner}>&#10094;</button>
+            <button className="slider-nav next" onClick={nextBanner}>&#10095;</button>
+            
+            <div className="slider-indicators">
+              {dbBanners.map((_, idx) => (
+                <button 
+                  key={idx} 
+                  className={`indicator-dot ${idx === currentBannerSlide ? 'active' : ''}`}
+                  onClick={() => setCurrentBannerSlide(idx)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="hero-content-wrapper">
           <nav className="top-nav">
             <div className="brand">

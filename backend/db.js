@@ -33,6 +33,7 @@ export async function initializeDatabase() {
     console.log('Resetting package tables for independent type structure...');
     await connection.query(`DROP TABLE IF EXISTS package_prices;`);
     await connection.query(`DROP TABLE IF EXISTS packages;`);
+    await connection.query(`DROP TABLE IF EXISTS banners;`);
 
     const createPackagesTable = `
       CREATE TABLE packages (
@@ -49,6 +50,17 @@ export async function initializeDatabase() {
 
     await connection.query(createPackagesTable);
     console.log('Table `packages` recreated as independent type table with promo pricing support.');
+
+    const createBannersTable = `
+      CREATE TABLE banners (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        image_url VARCHAR(500) NOT NULL,
+        title VARCHAR(255) NULL
+      );
+    `;
+    
+    await connection.query(createBannersTable);
+    console.log('Table `banners` created.');
 
     // 5. Seed initial data
     console.log('Seeding initial independent package data...');
@@ -156,6 +168,20 @@ export async function initializeDatabase() {
       }
     }
     console.log('Seeding completed. Inserted independent packages for each type.');
+
+    const initialBanners = [
+      { url: "/hero_banner_1_smarthome_1773482468456.png", title: "Smart Home Entertainment" },
+      { url: "/hero_banner_2_gaming_1773482483063.png", title: "Esports & Gaming" },
+      { url: "/hero_banner_3_fiber_1773482561135.png", title: "Ultra Fast Fiber City" }
+    ];
+
+    for (const banner of initialBanners) {
+      await connection.execute(
+        'INSERT INTO banners (image_url, title) VALUES (?, ?)',
+        [banner.url, banner.title]
+      );
+    }
+    console.log('Seeding completed. Inserted initial banners.');
 
     // Close configuration connection
     await connection.end();
