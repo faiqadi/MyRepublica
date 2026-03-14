@@ -1,152 +1,119 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-type Term = "1 Bulan" | "5 Get 1" | "9 Get 3" | "12 Get 6";
+type Term = "Bulanan" | "6 Bulanan" | "Tahunan" | "Spesial";
 
-const packages = [
-  {
-    name: "Value",
-    speed: "30 Mbps",
-    devices: "1 - 3 Device",
-    notes: ["Internet UNLIMITED", "Include ONT/Modem", "Gratis Instalasi Rp500.000", "DL & UL 1:1 up to 30 Mbps"],
-    prices: {
-      "1 Bulan": "Rp 218.000",
-      "5 Get 1": "Rp 1.090.000",
-      "9 Get 3": "Rp 1.962.000",
-      "12 Get 6": "Rp 2.616.000",
-    },
-  },
-  {
-    name: "Fast",
-    speed: "50 Mbps",
-    devices: "1 - 5 Device",
-    notes: [
-      "Bonus Speed upgrade 100 Mbps (3 bulan)",
-      "Internet UNLIMITED",
-      "Include ONT/Modem",
-      "Gratis Instalasi Rp500.000",
-      "DL & UL 1:1 up to 50 Mbps",
-    ],
-    prices: {
-      "1 Bulan": "Rp 227.550",
-      "5 Get 1": "Rp 1.304.250",
-      "9 Get 3": "Rp 2.347.000",
-      "12 Get 6": "Rp 3.130.200",
-    },
-  },
-  {
-    name: "Nova",
-    speed: "100 Mbps",
-    devices: "1 - 7 Device",
-    notes: [
-      "Vidio Platinum Lite",
-      "Bonus Speed upgrade 200 Mbps (3 bulan)",
-      "Internet UNLIMITED",
-      "Include ONT/Modem",
-      "Gratis Instalasi Rp500.000",
-      "DL & UL 1:1 up to 100 Mbps",
-    ],
-    prices: {
-      "1 Bulan": "Rp 277.500",
-      "5 Get 1": "Rp 1.387.500",
-      "9 Get 3": "Rp 2.497.500",
-      "12 Get 6": "Rp 3.330.000",
-    },
-  },
-  {
-    name: "MyGamer",
-    speed: "250 Mbps",
-    devices: "1 - 10 Device",
-    notes: [
-      "Vidio Platinum Lite",
-      "Internet UNLIMITED",
-      "Include ONT/Modem",
-      "Gratis Instalasi Rp500.000",
-      "DL & UL 1:1 up to 250 Mbps",
-      "Akses langsung ke server game",
-    ],
-    prices: {
-      "1 Bulan": "Rp 333.000",
-      "5 Get 1": "Rp 1.655.000",
-      "9 Get 3": "Rp 2.997.000",
-      "12 Get 6": "Rp 3.996.000",
-    },
-  },
-  {
-    name: "Prime",
-    speed: "500 Mbps",
-    devices: "1 - 15 Device",
-    notes: [
-      "Vidio Platinum Lite",
-      "Internet UNLIMITED",
-      "Include ONT/Modem",
-      "Gratis Instalasi Rp500.000",
-      "DL & UL 1:1 up to 500 Mbps",
-    ],
-    prices: {
-      "1 Bulan": "Rp 444.000",
-      "5 Get 1": "Rp 2.220.000",
-      "9 Get 3": "Rp 3.966.000",
-      "12 Get 6": "Rp 5.328.000",
-    },
-  },
-];
+interface PackageData {
+  id: number;
+  type: Term;
+  name: string;
+  speed: string;
+  devices: string;
+  price: string;
+  promo_price?: string;
+  notes: string[];
+}
 
-const TERMS: Term[] = ["1 Bulan", "5 Get 1", "9 Get 3", "12 Get 6"];
+const TERMS: Term[] = ["Bulanan", "6 Bulanan", "Tahunan", "Spesial"];
 
 export const App: React.FC = () => {
-  const [activeTerm, setActiveTerm] = useState<Term>("1 Bulan");
+  const [activeTerm, setActiveTerm] = useState<Term>("Bulanan");
+  const [packages, setPackages] = useState<PackageData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  
+  // Hero Slider State
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const heroImages = [
+    "/hero_banner_1_smarthome_1773482468456.png", 
+    "/hero_banner_2_gaming_1773482483063.png", 
+    "/hero_banner_3_fiber_1773482561135.png"
+  ];
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/packages")
+      .then((res) => res.json())
+      .then((data) => {
+        setPackages(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Gagal memuat paket", err);
+        setLoading(false);
+      });
+  }, []);
+
+  // Auto-slide effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
+  // Filter packages based on the active tab
+  const displayedPackages = packages.filter(pkg => pkg.type === activeTerm);
 
   return (
     <div className="page">
-      <header className="hero">
-        <nav className="top-nav">
-          <div className="brand">
-            <span className="brand-mark" />
-            <span className="brand-text">
-              MyRepublic <span>Jogja</span>
-            </span>
-          </div>
-          <div className="nav-links">
-            <a href="#why">Keunggulan</a>
-            <a href="#packages">Paket</a>
-            <a href="#steps">Cara Berlangganan</a>
-            <a href="#contact">Kontak</a>
-          </div>
-        </nav>
-
-        <div className="hero-content">
-          <div className="hero-copy">
-            <p className="eyebrow">Promo Update 13 Maret 2026</p>
-            <h1>Internetan di rumah tanpa ngelag, tahan terhadap cuaca.</h1>
-            <p>
-              MyRepublic adalah penyedia layanan internet unlimited tanpa FUP di Indonesia. Nikmati kecepatan internet cepat dan stabil dengan layanan full Fiber Optic (FTTH).
-            </p>
-            <div className="hero-cta">
-              <a 
-                href="https://api.whatsapp.com/send?phone=6285713111997&text=Halo promomyrepublicjogja.com, saya ingin berlangganan internet MyRepublic. Bisa minta informasi lebih detail?" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="btn-primary"
-              >
-                Langganan Sekarang via WA
-              </a>
-              <a href="#packages" className="btn-outline">
-                Lihat Promo
-              </a>
+      <header className="hero slider-container">
+        {heroImages.map((img, index) => (
+          <div 
+            key={img}
+            className={`slider-bg ${index === currentSlide ? 'active' : ''}`} 
+            style={{ backgroundImage: `url("${img}")` }} 
+          />
+        ))}
+        <div className="slider-overlay" />
+        
+        <div className="hero-content-wrapper">
+          <nav className="top-nav">
+            <div className="brand">
+              <span className="brand-mark" />
+              <span className="brand-text">
+                MyRepublic <span>Jogja</span>
+              </span>
             </div>
-          </div>
-          <div className="hero-highlight">
-            <div className="highlight-card floating-animation">
-              <p className="highlight-pill">Tanpa Kuota</p>
-              <p className="highlight-main">Kecepatan hingga 500 Mbps</p>
-              <p className="highlight-sub">Ideal untuk streaming & gaming</p>
+            <div className="nav-links">
+              <a href="#why">Keunggulan</a>
+              <a href="#packages">Paket</a>
+              <a href="#steps">Cara Berlangganan</a>
+              <a href="#contact">Kontak</a>
+            </div>
+          </nav>
+
+          <div className="hero-content">
+            <div className="hero-copy">
+              <p className="eyebrow">Promo Update 13 Maret 2026</p>
+              <h1>Internetan di rumah tanpa ngelag, tahan terhadap cuaca.</h1>
+              <p>
+                MyRepublic adalah penyedia layanan internet unlimited tanpa FUP di Indonesia. Nikmati kecepatan internet cepat dan stabil dengan layanan full Fiber Optic (FTTH).
+              </p>
+              <div className="hero-cta">
+                <a 
+                  href="https://api.whatsapp.com/send?phone=6285713111997&text=Halo promomyrepublicjogja.com, saya ingin berlangganan internet MyRepublic. Bisa minta informasi lebih detail?" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="btn-primary"
+                >
+                  Langganan Sekarang via WA
+                </a>
+                <a href="#packages" className="btn-outline">
+                  Lihat Promo
+                </a>
+              </div>
+            </div>
+            <div className="hero-highlight">
+              <div className="highlight-card floating-animation">
+                <p className="highlight-pill">Tanpa Kuota</p>
+                <p className="highlight-main">Kecepatan hingga 500 Mbps</p>
+                <p className="highlight-sub">Ideal untuk streaming & gaming</p>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       <section id="why" className="why-us">
-        <h2>Why Choose Us</h2>
+        <h2>Mengapa Memilih Kami</h2>
         <p>
           Kami menghadirkan layanan internet terbaik dengan kecepatan tinggi, harga terjangkau, dan fitur unggulan yang dirancang untuk memenuhi kebutuhan seluruh keluarga dan para gamer.
         </p>
@@ -187,27 +154,47 @@ export const App: React.FC = () => {
         </div>
 
         <div className="packages-grid">
-          {packages.map((pkg) => (
-            <article key={pkg.name} className="package-card tooltip-container">
-              <h3>{pkg.name}</h3>
-              <p className="package-speed">{pkg.speed}</p>
-              <p className="package-price">{pkg.prices[activeTerm]}</p>
-              <ul>
-                {pkg.notes.map((n) => (
-                  <li key={n}>{n}</li>
-                ))}
-                <li>Ideal untuk {pkg.devices}</li>
-              </ul>
-              <a 
-                href={`https://api.whatsapp.com/send?phone=6285713111997&text=Halo promomyrepublicjogja.com, saya ingin langganan ${activeTerm} - ${pkg.name}. Bisa minta informasi lebih detail?`}
-                target="_blank" 
-                rel="noreferrer" 
-                className="btn-primary full-width"
-              >
-                Langganan Sekarang
-              </a>
-            </article>
-          ))}
+          {displayedPackages.map((pkg, index) => {
+            const hasPromo = pkg.promo_price && pkg.promo_price.trim() !== "";
+            const activePrice = hasPromo ? pkg.promo_price : pkg.price;
+            
+            return (
+              <article key={pkg.id} className="package-card tooltip-container" style={{ animationDelay: `${index * 0.1}s` }}>
+                <h3>{pkg.name}</h3>
+                <div className="package-speed">
+                  <span className="speed-value">{pkg.speed.split(' ')[0]}</span>
+                  <span className="speed-unit">Mbps</span>
+                </div>
+                
+                <div className="package-price" style={{ margin: '1rem 0' }}>
+                  {hasPromo && (
+                    <div style={{ color: '#9ca3af', fontSize: '1rem', textDecoration: 'line-through', marginBottom: '0.25rem' }}>
+                      {pkg.price}
+                    </div>
+                  )}
+                  <div className="price-amount" style={{ fontSize: '2rem', fontWeight: 'bold', color: hasPromo ? '#22c55e' : 'inherit' }}>
+                    {activePrice}
+                  </div>
+                  <div className="price-period" style={{ fontSize: '0.9rem', opacity: 0.8 }}>/ {activeTerm.toLowerCase()}</div>
+                </div>
+
+                <ul>
+                  {pkg.notes.map((n) => (
+                    <li key={n}>{n}</li>
+                  ))}
+                  <li>Ideal untuk {pkg.devices}</li>
+                </ul>
+                <a 
+                  href={`https://api.whatsapp.com/send?phone=6285713111997&text=Halo promomyrepublicjogja.com, saya ingin langganan ${pkg.type} - ${pkg.name}. Bisa minta informasi lebih detail? Harga promo: ${activePrice || ""}`}
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="btn-primary full-width"
+                >
+                  Langganan Sekarang
+                </a>
+              </article>
+            );
+          })}
         </div>
       </section>
 

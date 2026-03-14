@@ -1,11 +1,18 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { App } from "./App";
-import "./styles.css";
+import React, { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { App } from './App'
+import { AdminHome, AdminType } from './Admin'
+import './styles.css'
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/admin" element={<AdminHome />} />
+        <Route path="/admin/:type" element={<AdminType />} />
+      </Routes>
+    </BrowserRouter>
+  </StrictMode>,
 );
-
