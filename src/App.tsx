@@ -21,6 +21,15 @@ interface BannerData {
   title: string;
 }
 
+interface HeroContentData {
+  eyebrow: string;
+  title: string;
+  description: string;
+  highlight_pill: string;
+  highlight_main: string;
+  highlight_sub: string;
+}
+
 export const App: React.FC = () => {
   const [activeTerm, setActiveTerm] = useState<Term>("Bulanan");
   const [packages, setPackages] = useState<PackageData[]>([]);
@@ -29,6 +38,9 @@ export const App: React.FC = () => {
   // Database Banners State
   const [dbBanners, setDbBanners] = useState<BannerData[]>([]);
   const [currentBannerSlide, setCurrentBannerSlide] = useState(0);
+
+  // Hero Content State
+  const [heroContent, setHeroContent] = useState<HeroContentData | null>(null);
 
   // Hero Slider State (Original feature)
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -59,6 +71,16 @@ export const App: React.FC = () => {
       })
       .catch((err) => {
         console.error("Gagal memuat banner dari database", err);
+      });
+
+    // Fetch Hero Content
+    fetch("http://localhost:5000/api/hero-content")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.error) setHeroContent(data);
+      })
+      .catch((err) => {
+        console.error("Gagal memuat konten hero", err);
       });
   }, []);
   // Auto-slide effect for DB Banners
@@ -123,10 +145,10 @@ export const App: React.FC = () => {
 
           <div className="hero-content">
             <div className="hero-copy">
-              <p className="eyebrow">Promo Update 13 Maret 2026</p>
-              <h1>Internetan di rumah tanpa ngelag, tahan terhadap cuaca.</h1>
+              <p className="eyebrow">{heroContent?.eyebrow || "Promo Menarik"}</p>
+              <h1>{heroContent?.title || "Internet Berkualitas Tinggi"}</h1>
               <p>
-                MyRepublic adalah penyedia layanan internet unlimited tanpa FUP di Indonesia. Nikmati kecepatan internet cepat dan stabil dengan layanan full Fiber Optic (FTTH).
+                {heroContent?.description || "Nikmati layanan internet cepat dan unlimited."}
               </p>
               <div className="hero-cta">
                 <a 
@@ -144,9 +166,9 @@ export const App: React.FC = () => {
             </div>
             <div className="hero-highlight">
               <div className="highlight-card floating-animation">
-                <p className="highlight-pill">Tanpa Kuota</p>
-                <p className="highlight-main">Kecepatan hingga 500 Mbps</p>
-                <p className="highlight-sub">Ideal untuk streaming & gaming</p>
+                <p className="highlight-pill">{heroContent?.highlight_pill || "Tanpa Kuota"}</p>
+                <p className="highlight-main">{heroContent?.highlight_main || "Super Cepat"}</p>
+                <p className="highlight-sub">{heroContent?.highlight_sub || "Ideal untuk Anda"}</p>
               </div>
             </div>
           </div>

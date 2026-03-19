@@ -117,6 +117,36 @@ app.delete("/api/banners/:id", async (req, res) => {
     }
 });
 
+// GET hero content
+app.get("/api/hero-content", async (req, res) => {
+    try {
+        const [content] = await pool.query('SELECT * FROM hero_content LIMIT 1');
+        if (content.length > 0) {
+            res.json(content[0]);
+        } else {
+            res.status(404).json({ error: "Hero content not found" });
+        }
+    } catch (error) {
+        console.error("Error fetching hero content:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+// PUT update hero content
+app.put("/api/hero-content", async (req, res) => {
+    const { eyebrow, title, description, highlight_pill, highlight_main, highlight_sub } = req.body;
+    try {
+        await pool.query(
+            'UPDATE hero_content SET eyebrow = ?, title = ?, description = ?, highlight_pill = ?, highlight_main = ?, highlight_sub = ?',
+            [eyebrow, title, description, highlight_pill, highlight_main, highlight_sub]
+        );
+        res.json({ message: "Hero content updated" });
+    } catch (error) {
+        console.error("Error updating hero content:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 app.listen(5000, () => {
     console.log("Server running on port 5000");
 });

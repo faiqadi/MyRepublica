@@ -34,6 +34,7 @@ export async function initializeDatabase() {
     await connection.query(`DROP TABLE IF EXISTS package_prices;`);
     await connection.query(`DROP TABLE IF EXISTS packages;`);
     await connection.query(`DROP TABLE IF EXISTS banners;`);
+    await connection.query(`DROP TABLE IF EXISTS hero_content;`);
 
     const createPackagesTable = `
       CREATE TABLE packages (
@@ -61,6 +62,21 @@ export async function initializeDatabase() {
     
     await connection.query(createBannersTable);
     console.log('Table `banners` created.');
+
+    const createHeroContentTable = `
+      CREATE TABLE hero_content (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        eyebrow VARCHAR(255) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        highlight_pill VARCHAR(255) NOT NULL,
+        highlight_main VARCHAR(255) NOT NULL,
+        highlight_sub VARCHAR(255) NOT NULL
+      );
+    `;
+    
+    await connection.query(createHeroContentTable);
+    console.log('Table `hero_content` created.');
 
     // 5. Seed initial data
     console.log('Seeding initial independent package data...');
@@ -182,6 +198,29 @@ export async function initializeDatabase() {
       );
     }
     console.log('Seeding completed. Inserted initial banners.');
+
+    // Seed Hero Content
+    const initialHeroContent = {
+      eyebrow: "Promo Update 13 Maret 2026",
+      title: "Internetan di rumah tanpa ngelag, tahan terhadap cuaca.",
+      description: "MyRepublic adalah penyedia layanan internet unlimited tanpa FUP di Indonesia. Nikmati kecepatan internet cepat dan stabil dengan layanan full Fiber Optic (FTTH).",
+      highlight_pill: "Tanpa Kuota",
+      highlight_main: "Kecepatan hingga 500 Mbps",
+      highlight_sub: "Ideal untuk streaming & gaming"
+    };
+
+    await connection.execute(
+      'INSERT INTO hero_content (eyebrow, title, description, highlight_pill, highlight_main, highlight_sub) VALUES (?, ?, ?, ?, ?, ?)',
+      [
+        initialHeroContent.eyebrow, 
+        initialHeroContent.title, 
+        initialHeroContent.description, 
+        initialHeroContent.highlight_pill, 
+        initialHeroContent.highlight_main, 
+        initialHeroContent.highlight_sub
+      ]
+    );
+    console.log('Seeding completed. Inserted initial hero content.');
 
     // Close configuration connection
     await connection.end();

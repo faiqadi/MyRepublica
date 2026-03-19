@@ -18,6 +18,15 @@ interface BannerData {
   title: string;
 }
 
+interface HeroContentData {
+  eyebrow: string;
+  title: string;
+  description: string;
+  highlight_pill: string;
+  highlight_main: string;
+  highlight_sub: string;
+}
+
 const inputStyle = {
   width: '100%', padding: '0.8rem', borderRadius: '0.5rem', 
   border: '1px solid #4b1b82', background: '#2d114c', color: 'white',
@@ -58,22 +67,43 @@ export const AdminHome: React.FC = () => {
       </header>
       
       <p style={{ color: '#d8b4fe', marginBottom: '1rem', fontWeight: 'bold' }}>Tampilan Website & Header:</p>
-      <Link 
-        to="/admin/banners" 
-        style={{ 
-          background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', 
-          padding: '1.5rem 2rem', borderRadius: '1rem', 
-          border: '1px solid #b47ce9', color: 'white', textDecoration: 'none',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '3rem',
-          transition: 'transform 0.2s', boxShadow: '0 10px 25px rgba(139, 61, 200, 0.4)'
-        }}
-        onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'}
-        onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
-      >
-        <span>🖼️ Kelola Banner Slider Utama</span>
-        <span>&rarr;</span>
-      </Link>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem' }}>
+        <Link 
+          to="/admin/banners" 
+          style={{ 
+            flex: 1,
+            background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', 
+            padding: '1.5rem 2rem', borderRadius: '1rem', 
+            border: '1px solid #b47ce9', color: 'white', textDecoration: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            fontSize: '1.25rem', fontWeight: 'bold',
+            transition: 'transform 0.2s', boxShadow: '0 10px 25px rgba(139, 61, 200, 0.4)'
+          }}
+          onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'}
+          onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+        >
+          <span>🖼️ Kelola Banner Slider</span>
+          <span>&rarr;</span>
+        </Link>
+        <Link 
+          to="/admin/hero" 
+          style={{ 
+            flex: 1,
+            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', 
+            padding: '1.5rem 2rem', borderRadius: '1rem', 
+            border: '1px solid #93c5fd', color: 'white', textDecoration: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            fontSize: '1.25rem', fontWeight: 'bold',
+            transition: 'transform 0.2s', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.4)'
+          }}
+          onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'}
+          onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+        >
+          <span>✍️ Kelola Teks Hero Utama</span>
+          <span>&rarr;</span>
+        </Link>
+      </div>
+
 
       <p style={{ color: '#d8b4fe', marginBottom: '2rem', fontWeight: 'bold' }}>Pengelolaan Daftar Paket per Kategori:</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
@@ -442,6 +472,121 @@ export const AdminType: React.FC = () => {
             </table>
           )}
         </div>
+      </div>
+    </div>
+  );
+};
+
+// ----------------------------------------------------
+// ADMIN HERO TEXT COMPONENT
+// ----------------------------------------------------
+export const AdminHero: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Form State
+  const [eyebrow, setEyebrow] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [highlightPill, setHighlightPill] = useState("");
+  const [highlightMain, setHighlightMain] = useState("");
+  const [highlightSub, setHighlightSub] = useState("");
+
+  useEffect(() => {
+    setLoading(true);
+    fetch("http://localhost:5000/api/hero-content")
+      .then((res) => res.json())
+      .then((data: HeroContentData) => {
+        setEyebrow(data.eyebrow);
+        setTitle(data.title);
+        setDescription(data.description);
+        setHighlightPill(data.highlight_pill);
+        setHighlightMain(data.highlight_main);
+        setHighlightSub(data.highlight_sub);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Gagal memuat teks hero", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await fetch("http://localhost:5000/api/hero-content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eyebrow, title, description,
+          highlight_pill: highlightPill,
+          highlight_main: highlightMain,
+          highlight_sub: highlightSub
+        })
+      });
+      alert("Konten Hero berhasil diperbarui!");
+    } catch (error) {
+      console.error("Gagal menyimpan teks hero", error);
+      alert("Gagal menyimpan perubahan.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', fontFamily: 'system-ui' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ color: '#ffffff', margin: 0 }}>Kelola <span style={{color: '#3b82f6'}}>Teks Hero</span></h1>
+          <Link to="/admin" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.9rem' }}>&larr; Kembali ke Beranda Admin</Link>
+        </div>
+        <a href="/" style={{ color: '#b47ce9', textDecoration: 'none' }}>Ke Situs Utama &rarr;</a>
+      </header>
+
+      <div style={{ background: '#1c0a2f', padding: '2rem', borderRadius: '1rem', border: '1px solid #4b1b82' }}>
+        {loading ? (
+          <p style={{ color: 'white' }}>Memuat data...</p>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            
+            <fieldset style={{ border: '1px solid #4b1b82', padding: '1.5rem', borderRadius: '0.5rem', margin: 0 }}>
+              <legend style={{ color: '#a855f7', fontWeight: 'bold', padding: '0 0.5rem' }}>Teks Penawaran Utama</legend>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#94a3b8' }}>Eyebrow (Label Promo Atas)</label>
+                <input required value={eyebrow} onChange={e => setEyebrow(e.target.value)} style={inputStyle} placeholder="Promo Update..." />
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#94a3b8' }}>Judul H1 Utama</label>
+                <textarea required value={title} onChange={e => setTitle(e.target.value)} style={{...inputStyle, minHeight: '80px', resize: 'vertical'}} placeholder="Internetan di rumah..." />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#94a3b8' }}>Deskripsi Paragraf</label>
+                <textarea required value={description} onChange={e => setDescription(e.target.value)} style={{...inputStyle, minHeight: '120px', resize: 'vertical'}} placeholder="MyRepublic adalah..." />
+              </div>
+            </fieldset>
+
+            <fieldset style={{ border: '1px solid #4b1b82', padding: '1.5rem', borderRadius: '0.5rem', margin: 0 }}>
+              <legend style={{ color: '#a855f7', fontWeight: 'bold', padding: '0 0.5rem' }}>Kartu Highlight Sebelah Kanan</legend>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#94a3b8' }}>Highlight Pill (Tombol Kecil)</label>
+                <input required value={highlightPill} onChange={e => setHighlightPill(e.target.value)} style={inputStyle} placeholder="Tanpa Kuota" />
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#94a3b8' }}>Teks Highlight Besar</label>
+                <input required value={highlightMain} onChange={e => setHighlightMain(e.target.value)} style={inputStyle} placeholder="Kecepatan hingga..." />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#94a3b8' }}>Teks Keterangan Bawah</label>
+                <input required value={highlightSub} onChange={e => setHighlightSub(e.target.value)} style={inputStyle} placeholder="Ideal untuk..." />
+              </div>
+            </fieldset>
+
+            <button type="submit" disabled={saving} style={{...primaryButtonStyle, background: saving ? '#475569' : primaryButtonStyle.background, marginTop: '1rem'}}>
+              {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
